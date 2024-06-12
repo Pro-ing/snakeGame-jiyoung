@@ -4,7 +4,7 @@ class EarthWorm extends IEarthWorm{
     constructor(width, height) {
         super(width, height);
         this.headDirection = 'RIGHT';       // 초기 방향
-        this.worm = {x:10,y:10};            // 지렁이 좌표
+        this.worm = [{x:10,y:10}];          // 지렁이 좌표
         this.apple = this.createApple();    // 사과 좌표
         this.isGameOver = false;            // 종료 여부
     }
@@ -12,14 +12,23 @@ class EarthWorm extends IEarthWorm{
     // 게임 초기화
     gameReset(){
         this.headDirection = 'right';
-        this.worm = {x:10,y:10};
+        this.worm = [{x:10,y:10}];
         this.apple = this.createApple();
         this.isGameOver = false;
     }
     
     // 지렁이 방향 설정
     setHeadDirection(direction) {
-        this.headDirection = direction;
+        if(direction === 'UP' && this.headDirection === 'DOWN' ||
+            direction === 'DOWN' && this.headDirection === 'UP' ||
+            direction === 'LEFT' && this.headDirection === 'RIGHT' ||
+            direction === 'RIGHT' && this.headDirection === 'LEFT'
+        ) {
+            this.headDirection != direction;
+        }else {
+            this.headDirection = direction;
+        }
+
     }
     
     // 음식 생성
@@ -31,32 +40,26 @@ class EarthWorm extends IEarthWorm{
 
     // 게임 상태 업데이트
     updateWormStatus() {
-        const worm = this.worm;
+        const worm = { ...this.worm[0] };
         const apple = this.apple;
 
         // 키보드 클릭에 따른 방향 갱신
         switch (this.headDirection) {
             case 'UP':
-                // console.log(worm.x, worm.y)
                 worm.y -= 1;
-                this.headDirection = 'UP';
                 break;
             case 'DOWN':
-                // console.log(worm.x, worm.y)
                 worm.y += 1;
-                this.headDirection = 'DOWN';
                 break;
             case 'LEFT':
-                // console.log(worm.x, worm.y)
                 worm.x -= 1;
-                this.headDirection = 'LEFT';
                 break;
             case 'RIGHT':
-                // console.log(worm.x, worm.y)
                 worm.x += 1;
-                this.headDirection = 'RIGHT';
                 break;
         }
+
+        this.worm.splice(0,0,worm);
 
         // 벽에 닿았는지 체크
         if (worm.x <= 0) {
@@ -77,6 +80,8 @@ class EarthWorm extends IEarthWorm{
         if ((worm.x >= apple.x - 30 && worm.x <= apple.x + 30) 
                 && (worm.y >= apple.y - 30 && worm.y <= apple.y + 30) ) {
             this.apple = this.createApple();
+        } else {
+            this.worm.pop();
         }
     }
 
