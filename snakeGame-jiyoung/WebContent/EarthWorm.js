@@ -11,23 +11,40 @@ class EarthWorm {
     }
 
     gameReset(){
-        let foodList = ["minusScore", "disappear", "cutLength"];
+        const foodList = ["minusScore", "disappear", "cutLength"];
+
         food = new Food(this.getRandomInt(), this.getRandomInt());
+
         this.worm = [{"worm1":[{x:this.getRandomInt(),y:this.getRandomInt()}]}];
         this.feedCoord = [{"feed1":[{x:food.x, y:food.y, type:foodList[0]}]}];
+
+        setInterval(() => {
+            this.updateWormStatus(this.isGameOver);
+            drawAll();
+        }, 200);
     }
 
     setMapSize(mapSize) {
         let size;
-        if (mapSize == 1) {
+        if (mapSize == "small") {
             size = 300;
-        } else if (mapSize == 2) {
+        } else if (mapSize == "medium") {
             size = 500;
-        } else if (mapSize == 3) {
+        } else if (mapSize == "large") {
             size = 800;
         }
         this.width = size;
         this.height = size;
+    }
+
+    setWormSpeed(playSpeed) {
+        if (playSpeed == "slow") {
+            
+        } else if (playSpeed == "medium") {
+            
+        } else if (playSpeed == "fast") {
+            
+        }
     }
 
     setHeadDirection(direction) {
@@ -42,11 +59,11 @@ class EarthWorm {
         }
     }
 
-    updateWormStatus(direction) {
+    updateWormStatus(isGameOver) {
         let wormHead = this.worm[0].worm1[0];
         let feed = this.feedCoord[0].feed1[0];
         let direction = this.headDirection;
-
+        
         if(direction === 'LEFT') {
             if(wormHead.x > 0){
                 wormHead.x -= 50;
@@ -88,13 +105,27 @@ class EarthWorm {
         if(wormHead.x == feed.x && wormHead.y == feed.y) {
             wormLength += 1;
             food = new Food(this.getRandomInt(), this.getRandomInt());
-            this.feedCoord = [{"feed1":[{x:food.x, y:food.y,type:"minusScore"}]}];
+            this.feedCoord = [{"feed1":[{x:food.x, y:food.y, type:"minusScore"}]}];
         }
 
+        if (wormHead.x <= 0 || wormHead.y <= 0 
+                            || wormHead.x >= (this.width - 50)
+                            || wormHead.y >= (this.height - 50)) {
+            this.isGameOver = true;
+
+            this.getIsGameOver(this.isGameOver);
+        }
     }
 
     getRandomInt() {
         return 50 * Math.floor(Math.random() * 10);
+    }
+
+    getIsGameOver(result) {
+        if (result == true) {
+            console.log("gameOver");
+            return this.isGameOver;
+        }
     }
 
     getMapSize() {
@@ -107,10 +138,6 @@ class EarthWorm {
 
     getFeedCoord() {
         return this.feedCoord;
-    }
-    
-    getIsGameOver() {
-        return this.isGameOver;
     }
 
     getHeadDirection() {
