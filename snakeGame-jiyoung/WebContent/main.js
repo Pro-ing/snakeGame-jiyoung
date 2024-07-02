@@ -11,8 +11,12 @@ window.onload = function(){
 
     worm.gameReset();
     worm.setMapSize("medium");
+    worm.setNumberOfPlayer("2P"); 
+    worm.setWormSpeed("slow");
+
     width = canvas.width = worm.getMapSize().width;
     height = canvas.height = worm.getMapSize().height;
+    
     drawAll();
 }
 
@@ -24,6 +28,7 @@ function drawAll(){
     
     // 지렁이 머리
     let head = worm.getWorm();
+    
     ctx.fillStyle = 'green';
     ctx.fillRect(head[0].worm1[0].x, head[0].worm1[0].y, 50, 50);
 
@@ -36,8 +41,19 @@ function drawAll(){
     }
 
     // 먹이
-    ctx.fillStyle = 'red';
-    ctx.fillRect(food.x, food.y, 50, 50);
+    if(worm.getFeedCoord()[0].feed1[0].type == "basic") {
+        ctx.fillStyle = 'red';
+        ctx.fillRect(food.x, food.y, 50, 50);
+    } else if (worm.getFeedCoord()[0].feed1[0].type == "minusScore") {
+        ctx.fillStyle = 'pink';
+        ctx.fillRect(food.x, food.y, 50, 50);
+    } else if (worm.getFeedCoord()[0].feed1[0].type == "disappear") {
+        ctx.fillStyle = 'purple';
+        ctx.fillRect(food.x, food.y, 50, 50);
+    } else if (worm.getFeedCoord()[0].feed1[0].type == "cutLength") {
+        ctx.fillStyle = 'yellow';
+        ctx.fillRect(food.x, food.y, 50, 50);
+    }
 }
 
 document.addEventListener('keydown', (e)=>{
