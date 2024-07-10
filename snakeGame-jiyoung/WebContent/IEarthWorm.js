@@ -4,6 +4,8 @@
  * @version 1.0.1
  * @since 1.0.1
  * @lastModifyDate 24.06.26
+ * @version 1.0.0
+ * @since 1.0.0
  */
 class IEarthWorm {
     /*
@@ -27,7 +29,6 @@ class IEarthWorm {
         this.obstacle = [{}];
         this.isGameOver = false;
         this.score = 0;
-    }
     
     /*
     * 재시작 시 게임을 초기화 하는 함수입니다.
@@ -131,4 +132,6 @@ class IEarthWorm {
     getobstacleCoord () {
         return this.obstacle;
     }
+
 }
+
