@@ -1,6 +1,15 @@
-class EarthWorm {
-    static foodList = ["basic", "minusScore", "disappear", "cutLength"];
-    
+import { NumberUtil } from './Util/NumberUtil.js';
+import { Food } from './Food.js';
+import { WormBody } from './WormBody.js';
+
+class EarthWorm{
+    static mapSize = {"small": 300, "medium": 500, "large": 800};
+    static playSpeed = {"slow": 800, "medium": 500, "fast": 100};
+    food;
+    time;
+    interval;
+    random = new NumberUtil();
+
     constructor() {
         this.width = 0;
         this.height = 0;
@@ -10,59 +19,44 @@ class EarthWorm {
         this.obstacle = [{}];
         this.isGameOver = false;
         this.score = 0;
+        this.wormBodyArr = [];
+        this.wormLength = 0;
     }
 
-    gameReset(){
-        food = new Food(this.getRandomInt(), this.getRandomInt());
-        time = 500;
-        
-        this.width = 500;
-        this.height = 500;
-        this.worm = [{"worm1":[{x:this.getRandomInt(),y:this.getRandomInt()}]}];
-        this.feedCoord = [{"feed1":[{x:food.x, y:food.y, type:EarthWorm.foodList[this.getRandomInt(4)]}]}];
-        
-        interval = setInterval(() => {
+    setMapSize(size) {
+        this.width = EarthWorm.mapSize[size];
+        this.height = EarthWorm.mapSize[size];
+    }
+    
+    setWormSpeed(speed) {
+        EarthWorm.time = EarthWorm.playSpeed[speed];
+
+        clearInterval(EarthWorm.interval);
+        EarthWorm.interval = setInterval(() => {
             this.updateWormStatus(this.isGameOver);
             drawAll();
-        }, time);
+        }, EarthWorm.time);
     }
 
-    setMapSize(mapSize) {
-        let size;
-        if (mapSize == "small") {
-            size = 300;
-        } else if (mapSize == "medium") {
-            size = 500;
-        } else if (mapSize == "large") {
-            size = 800;
-        }
-        this.width = size;
-        this.height = size;
-    }
-
-
-    // 속력 = 거리/시간????
-    setWormSpeed(playSpeed) {
-        if (playSpeed == "slow") {
-            time = 800;
-        } else if (playSpeed == "medium") {
-            time = 500;
-        } else if (playSpeed == "fast") {
-            time = 100;
-        }
-        clearInterval(interval);
-        interval = setInterval(() => {
+    gameStart(){
+        EarthWorm.food = new Food(this.random.getRandomInt(), this.random.getRandomInt());
+        EarthWorm.time = 500;
+        
+        this.worm = [{"worm1":[{x:this.random.getRandomInt(),y:this.random.getRandomInt()}]}];
+        this.feedCoord = [{"feed1":[{x:EarthWorm.food.x, y:EarthWorm.food.y, type:Food.foodList[this.random.getRandomInt(4)]}]}];
+        
+        EarthWorm.interval = setInterval(() => {
             this.updateWormStatus(this.isGameOver);
             drawAll();
-        }, time);
+        }, EarthWorm.time);
     }
 
     setNumberOfPlayer(playerCnt, CompterCnt) {
         if (playerCnt == "1P") {
-            this.worm = [{"worm1":[{x:this.getRandomInt(),y:this.getRandomInt()}]}];
+            this.worm = [{"worm1":[{x:this.random.getRandomInt(),y:this.random.getRandomInt()}]}];
         } else if (playerCnt == "2P") {
-            this.worm = [{"worm1":[{x:this.getRandomInt(),y:this.getRandomInt()}]},
-                        {"worm2":[{x:this.getRandomInt(),y:this.getRandomInt()}]}];
+            this.worm = [{"worm1":[{x:this.random.getRandomInt(),y:this.random.getRandomInt()}]},
+                        {"worm2":[{x:this.random.getRandomInt(),y:this.random.getRandomInt()}]}];
         }
     }
 
@@ -88,7 +82,7 @@ class EarthWorm {
                 wormHead.x -= 50;
                 if(this.worm.length > 0){
                     let wormBody = new WormBody(wormHead.x+50, wormHead.y);
-                    wormBodyArr.push(wormBody);
+                    this.wormBodyArr.push(wormBody);
                 }
             }
         } else if (direction === 'RIGHT') {
@@ -96,7 +90,7 @@ class EarthWorm {
                 wormHead.x += 50;
                 if(this.worm.length > 0){
                     let wormBody = new WormBody(wormHead.x-50, wormHead.y);
-                    wormBodyArr.push(wormBody);
+                    this.wormBodyArr.push(wormBody);
                 }
             }
         } else if (direction === 'DOWN') {
@@ -104,7 +98,7 @@ class EarthWorm {
                 wormHead.y += 50;
                 if(this.worm.length > 0){
                     let wormBody = new WormBody(wormHead.x, wormHead.y-50);
-                    wormBodyArr.push(wormBody);
+                    this.wormBodyArr.push(wormBody);
                 }
             }
         } else if (direction === 'UP') {
@@ -112,35 +106,35 @@ class EarthWorm {
                 wormHead.y -= 50;
                 if(this.worm.length > 0){
                     let wormBody = new WormBody(wormHead.x, wormHead.y+50);
-                    wormBodyArr.push(wormBody);
+                    this.wormBodyArr.push(wormBody);
                 }
             }
         }
         
-        if(wormBodyArr.length > wormLength){
-            wormBodyArr.splice(0, 1);
+        if (this.wormBodyArr.length > this.wormLength){
+            this.wormBodyArr.splice(0, 1);
         }
-
+        
         // 음식에 닿았을때
         if(wormHead.x == feed.x && wormHead.y == feed.y) {
             let feedType = this.feedCoord[0].feed1[0].type;
             if(feedType == "basic" || feedType == "disappear") {
                 this.score +=1;
-                wormLength += 1;
+                this.wormLength += 1;
             } else if(feedType == "minusScore") {
                 this.score -=1;
-                wormLength += 1;
+                this.wormLength += 1;
             } else if(feedType == "cutLength") {
                 this.score +=1;
-                if(!wormLength == 0) {
-                    wormLength -= 1;
-                    wormBodyArr.splice(0, 1);
+                if(!this.wormLength == 0) {
+                    this.wormLength -= 1;
+                    this.wormBodyArr.splice(0, 1);
                 }
             }
             this.getGameScore(this.score);
             
-            food = new Food(this.getRandomInt(), this.getRandomInt());
-            this.feedCoord = [{"feed1":[{x:food.x, y:food.y, type:EarthWorm.foodList[this.getRandomInt(4)]}]}];
+            EarthWorm.food = new Food(this.random.getRandomInt(), this.random.getRandomInt());
+            this.feedCoord = [{"feed1":[{x:EarthWorm.food.x, y:EarthWorm.food.y, type:Food.foodList[this.random.getRandomInt(4)]}]}];
         }
 
         // 벽에 닿았을때
@@ -148,30 +142,18 @@ class EarthWorm {
                             || wormHead.x >= (this.width - 50)
                             || wormHead.y >= (this.height - 50)) {
             this.isGameOver = true;
-
             // this.getIsGameOver(this.isGameOver);
         }
 
         // 머리와 꼬리 닿았을때
-        if(wormBodyArr.length > 0) {
-            if(wormHead.x == wormBodyArr[0].x && wormHead.y == wormBodyArr[0].y) {
+        if(this.wormBodyArr.length > 0) {
+            if(wormHead.x == this.wormBodyArr[0].x && wormHead.y == this.wormBodyArr[0].y) {
+                this.isGameOver = true;
             }
         }
-    }
-
-    getRandomInt(max) {
-        if(max) {
-            return Math.floor(Math.random() * max);
-        } else {
-            return 50 * Math.floor(Math.random() * 10);
-        }
-    }
-
-    getIsGameOver(result) {
-        if (result == true) {
-            console.log("gameOver");
-            clearInterval(interval);
-            return this.isGameOver;
+        
+        if(isGameOver) {
+            // GameOver();
         }
     }
 
@@ -192,7 +174,6 @@ class EarthWorm {
     }
 
     getGameScore() {
-        console.log("score" + this.score);
         return this.score;
     }
 
@@ -200,27 +181,3 @@ class EarthWorm {
         return this.obstacle;
     }
 }
-
-class WormBody {
-    constructor(x, y){
-        this.x = x;
-        this.y = y;
-        this.width = 50;
-        this.height = 50;
-    }
-}
-
-class Food {
-    constructor(x, y){
-        this.x = x;
-        this.y = y;
-        this.width = 50
-        this.height = 50
-    }
-}
-
-let food;
-let wormBodyArr = [];
-let wormLength = 0;
-let interval;
-let time;
